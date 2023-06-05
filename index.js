@@ -129,8 +129,17 @@ app.post('/login', async (req, res) => {
     if (isPasswordMatched) {
       // Lakukan proses login
       // ...
-      
-      return res.status(200).json({ message: 'Login successful' });
+      const userId = user.id;
+
+      // Generate token and refresh token
+      const accessToken = generateToken(userId);
+      const refreshToken = generateRefreshToken(userId);
+
+      // Save tokens to Firestore
+      await saveTokensToFirestore(userId, accessToken, refreshToken);
+
+      // Return token and refresh token in the response
+      return res.status(200).json({ accessToken, refreshToken });
     } else {
       // Jika password tidak cocok
       return res.status(401).json({ error: 'Invalid credentials' });
@@ -140,6 +149,85 @@ app.post('/login', async (req, res) => {
     return res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+// Refresh token
+app.post('/refresh-token', async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res.status(401).json({ error: 'Refresh token not provided' });
+    }
+
+    // Verify refresh token
+    jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, async (error, decoded) => {
+      if (error) {
+        return res.status(401).json({ error: 'Invalid refresh token' });
+      }
+
+      const { userId } = decoded;
+
+      // Generate new access token
+      const accessToken = generateToken(userId);
+
+      // Save new access token to Firestore
+      await saveTokensToFirestore(userId, accessToken, refreshToken);
+
+      // Return new access token in the response
+      return res.status(200).json({ accessToken });
+    });
+  } catch (error) {
+    // ...
+    console.error('Error during refresh-token:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Logout
+app.delete('/logout', async (req, res) => {
+  try {
+    // Get user ID from request (you need to implement this logic)
+    const userId = req.userId;
+
+    // Clear access token from Firestore
+    const userRef = usersCollection.doc(userId);
+    await userRef.update({
+      accessToken: admin.firestore.FieldValue.delete(),
+      refreshToken: admin.firestore.FieldValue.delete()
+    });
+
+    res.status(200).json({ message: 'Logout successful' });
+  } catch (error) {
+    // ...
+  }
+});
+
+
+
+// Generate token
+const generateToken = (userId) => {
+  const payload = { userId };
+  const options = { expiresIn: '1h' };
+  const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, options);
+  return accessToken;
+};
+
+// Generate refresh token
+const generateRefreshToken = (userId) => {
+  const payload = { userId };
+  const options = { expiresIn: '7d' };
+  const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, options);
+  return refreshToken;
+};
+// Save access token and refresh token to Firestore
+const saveTokensToFirestore = async (userId, accessToken, refreshToken) => {
+  const userRef = usersCollection.doc(userId);
+  await userRef.update({
+    accessToken: accessToken,
+    refreshToken: refreshToken
+  });
+};
+
 
 // Start the server on port 3000
 app.listen(3000, () => {

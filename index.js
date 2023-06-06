@@ -1,17 +1,17 @@
 const express = require('express');
 const admin = require('firebase-admin');
+const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');
 
+const multer = require('multer');
+
 const app = express();
+const upload = multer();
 app.use(express.json());
 
+
 // Enable CORS
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', 'http://127.0.0.1:8080');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  next();
-});
+app.use(upload.none());
 
 // Initialize Firebase admin app
 const serviceAccount = require('./serviceAccountKey.json');
@@ -22,9 +22,10 @@ admin.initializeApp({
 // Initialize Firestore instance
 const db = admin.firestore(); 
 const usersCollection = db.collection('users');
+const preferensiCollection = db.collection('preferensi');
 
 // Add a new user to Firestore
-app.post('/users', async (req, res) => {
+app.post('/users/register', async (req, res) => {
   try {
     const { email, name, password } = req.body;
     const saltRounds = 10;
@@ -32,6 +33,7 @@ app.post('/users', async (req, res) => {
 
     // Create a new document with auto-generated ID and email attribute
     const newUser = {
+      id: uuidv4(),
       email: email,
       name: name,
       password: hashedPassword
@@ -43,24 +45,6 @@ app.post('/users', async (req, res) => {
     res.status(201).json({ id: newUserId, ...newUser });
   } catch (error) {
     res.status(500).send('Error adding user: ' + error);
-  }
-});
-
-// Get all users from Firestore
-app.get('/users', async (req, res) => {
-  try {
-    const snapshot = await usersCollection.get();
-    const users = [];
-    
-    snapshot.forEach(doc => {
-      const user = doc.data();
-      user.id = doc.id;
-      users.push(user);
-    });
-    
-    res.status(200).json(users);
-  } catch (error) {
-    res.status(500).send('Error getting users: ' + error);
   }
 });
 
@@ -107,7 +91,6 @@ app.delete('/users/:id', async (req, res) => {
   }
 });
 
-// Login
 app.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -117,10 +100,11 @@ app.post('/login', async (req, res) => {
     
     // Jika pengguna tidak ditemukan
     if (userDoc.empty) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+      return res.status(401).json({ error: 'User Not Founds' });
     }
 
     const user = userDoc.docs[0].data();
+    const userId = user.id;
 
     // Membandingkan password yang diberikan dengan password terenkripsi
     const isPasswordMatched = await bcrypt.compare(password, user.password);
@@ -129,17 +113,7 @@ app.post('/login', async (req, res) => {
     if (isPasswordMatched) {
       // Lakukan proses login
       // ...
-      const userId = user.id;
-
-      // Generate token and refresh token
-      const accessToken = generateToken(userId);
-      const refreshToken = generateRefreshToken(userId);
-
-      // Save tokens to Firestore
-      await saveTokensToFirestore(userId, accessToken, refreshToken);
-
-      // Return token and refresh token in the response
-      return res.status(200).json({ accessToken, refreshToken });
+      return res.status(200).json({message : 'Login succesful!'});
     } else {
       // Jika password tidak cocok
       return res.status(401).json({ error: 'Invalid credentials' });
@@ -150,83 +124,35 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// Refresh token
-app.post('/refresh-token', async (req, res) => {
+// Endpoint untuk menambahkan preferensi
+app.post('/preferensi', async (req, res) => {
   try {
-    const { refreshToken } = req.body;
+    // Mendapatkan ID pengguna dari objek permintaan
+    const userId = req.body.userId;
 
-    if (!refreshToken) {
-      return res.status(401).json({ error: 'Refresh token not provided' });
-    }
+    // Mendapatkan data preferensi dari objek permintaan
+    const { harga, vibe, rating, lokasi, jenis } = req.body;
 
-    // Verify refresh token
-    jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, async (error, decoded) => {
-      if (error) {
-        return res.status(401).json({ error: 'Invalid refresh token' });
-      }
+    // Membuat objek preferensi baru
+    const preferensiData = {
+      harga,
+      vibe,
+      rating,
+      lokasi,
+      jenis,
+      userId
+    };
 
-      const { userId } = decoded;
+    // Menyimpan preferensi ke koleksi "preferensi" di Firestore
+    const preferensiRef = await admin.firestore().collection('preferensi').add(preferensiData);
 
-      // Generate new access token
-      const accessToken = generateToken(userId);
-
-      // Save new access token to Firestore
-      await saveTokensToFirestore(userId, accessToken, refreshToken);
-
-      // Return new access token in the response
-      return res.status(200).json({ accessToken });
-    });
+    // Respon ke pengguna dengan ID preferensi yang baru ditambahkan
+    res.status(200).json({ preferensiId: preferensiRef.id });
   } catch (error) {
-    // ...
-    console.error('Error during refresh-token:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Gagal menambahkan preferensi' });
   }
 });
-
-// Logout
-app.delete('/logout', async (req, res) => {
-  try {
-    // Get user ID from request (you need to implement this logic)
-    const userId = req.userId;
-
-    // Clear access token from Firestore
-    const userRef = usersCollection.doc(userId);
-    await userRef.update({
-      accessToken: admin.firestore.FieldValue.delete(),
-      refreshToken: admin.firestore.FieldValue.delete()
-    });
-
-    res.status(200).json({ message: 'Logout successful' });
-  } catch (error) {
-    // ...
-  }
-});
-
-
-
-// Generate token
-const generateToken = (userId) => {
-  const payload = { userId };
-  const options = { expiresIn: '1h' };
-  const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, options);
-  return accessToken;
-};
-
-// Generate refresh token
-const generateRefreshToken = (userId) => {
-  const payload = { userId };
-  const options = { expiresIn: '7d' };
-  const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, options);
-  return refreshToken;
-};
-// Save access token and refresh token to Firestore
-const saveTokensToFirestore = async (userId, accessToken, refreshToken) => {
-  const userRef = usersCollection.doc(userId);
-  await userRef.update({
-    accessToken: accessToken,
-    refreshToken: refreshToken
-  });
-};
 
 
 // Start the server on port 3000

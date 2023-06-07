@@ -42,7 +42,12 @@ app.post('/users/register', async (req, res) => {
     const docRef = await usersCollection.add(newUser);
     const newUserId = docRef.id;
 
-    res.status(201).json({ id: newUserId, ...newUser });
+    const response = {
+      success : true,
+      message : "User Created",
+    }
+
+    res.status(201).json(response);
   } catch (error) {
     res.status(500).send('Error adding user: ' + error);
   }
@@ -113,10 +118,26 @@ app.post('/login', async (req, res) => {
     if (isPasswordMatched) {
       // Lakukan proses login
       // ...
-      return res.status(200).json({message : 'Login succesful!'});
+
+      const response = {
+        success : true,
+        message : "Login Successful",
+        LoginResult: {
+          id : userId,
+          ...user
+        }
+      }
+
+      return res.status(200).json(response);
     } else {
+
+      const response = {
+        success : false,
+        message : "Invalid Credentials",
+      }
+
       // Jika password tidak cocok
-      return res.status(401).json({ error: 'Invalid credentials' });
+      return res.status(401).json(response);
     }
   } catch (error) {
     console.error('Error during login:', error);
@@ -147,7 +168,17 @@ app.post('/preferensi', async (req, res) => {
     const preferensiRef = await admin.firestore().collection('preferensi').add(preferensiData);
 
     // Respon ke pengguna dengan ID preferensi yang baru ditambahkan
-    res.status(200).json({ preferensiId: preferensiRef.id });
+
+    const response = {
+      success : true,
+      message : "Berhasil menambahkan preferensi",
+      PreferensiResult : {
+        preferensiId : preferensiRef.id,
+        ...preferensiData
+      }
+    }
+
+    res.status(200).json(response);
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json({ error: 'Gagal menambahkan preferensi' });

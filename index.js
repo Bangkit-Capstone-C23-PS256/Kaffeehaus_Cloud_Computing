@@ -39,17 +39,18 @@ app.post('/users/register', async (req, res) => {
   try {
     const { email, name, password } = req.body;
     const saltRounds = 10;
+    const idForUser = uuidv4()
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     // Create a new document with auto-generated ID and email attribute
     const newUser = {
-      id: uuidv4(),
+      id: idForUser,
       email: email,
       name: name,
       password: hashedPassword
     };
 
-    const docRef = await usersCollection.add(newUser);
+    const docRef = await usersCollection.doc(idForUser).set(newUser);
     const newUserId = docRef.id;
 
     const response = {
@@ -70,11 +71,12 @@ app.get('/users', async (req, res) => {
     // Decode token id dari payload
     const decoded = await verify(token.split(" ")[1], JWT_SECRET);
     const id = decoded.id;
+    console.log(id);
 
     //const userId = req.params.id;
-    const doc = await db.collection('users').where('id', '==', id).limit(1).get();
-    
-    const userData = doc.docs[0].data();
+    //const doc = await db.collection('users').where('id', '==', id).limit(1).get();
+    const doc = await usersCollection.doc(id).get();
+    const userData = doc.data();
     res.send({name: userData.name, email: userData.email});
 
    
@@ -84,12 +86,17 @@ app.get('/users', async (req, res) => {
 });
 
 // Update a user by document ID in Firestore
-app.put('/users/:id', async (req, res) => {
+app.put('/users', async (req, res) => {
+  const token = req.headers.authorization;
   try {
-    const userId = req.params.id;
-    const updatedUser = req.body;
+     // Decode token id dari payload
+     const decoded = await verify(token.split(" ")[1], JWT_SECRET);
+     const id = decoded.id;
+ 
+     //const userId = req.params.id;
+     const {name} = req.body; 
 
-    await usersCollection.doc(userId).update(updatedUser);
+    await usersCollection.doc(id).update({name});
     res.status(200).send('User updated successfully');
   } catch (error) {
     res.status(500).send('Error updating user: ' + error);
@@ -97,11 +104,12 @@ app.put('/users/:id', async (req, res) => {
 });
 
 // Delete a user by document ID from Firestore
-app.delete('/users/:id', async (req, res) => {
+app.delete('/users', async (req, res) => {
   try {
-    const userId = req.params.id;
+    const decoded = await verify(token.split(" ")[1], JWT_SECRET);
+    const id = decoded.id;
 
-    await usersCollection.doc(userId).delete();
+    await usersCollection.doc(id).delete();
     res.status(200).send('User deleted successfully');
   } catch (error) {
     res.status(500).send('Error deleting user: ' + error);

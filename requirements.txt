@@ -1,0 +1,7 @@
+bcrypt
+dotenv
+express
+firebase-admin
+jsonwebtoken
+multer
+uuid

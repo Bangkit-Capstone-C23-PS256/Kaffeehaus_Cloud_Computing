@@ -2,8 +2,14 @@ const express = require('express');
 const admin = require('firebase-admin');
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');
+require('dotenv').config({ path: '.env'});
+const {promisify} = require('util');
+const jwt = require('jsonwebtoken');
+const verify = promisify(jwt.verify);
+const JWT_SECRET = process.env.ACCESS_TOKEN_SECRET;
 
 const multer = require('multer');
+
 
 const app = express();
 const upload = multer();
@@ -12,6 +18,10 @@ app.use(express.json());
 
 // Enable CORS
 app.use(upload.none());
+
+const generateToken = (id) => {
+  return jwt.sign({id: id}, JWT_SECRET);
+};
 
 // Initialize Firebase admin app
 const serviceAccount = require('./serviceAccountKey.json');
@@ -54,18 +64,20 @@ app.post('/users/register', async (req, res) => {
 });
 
 // Get a user by document ID from Firestore
-app.get('/users/:id', async (req, res) => {
+app.get('/users', async (req, res) => {
+  const token = req.headers.authorization;
   try {
-    const userId = req.params.id;
-    const doc = await usersCollection.doc(userId).get();
+    // Decode token id dari payload
+    const decoded = await verify(token.split(" ")[1], JWT_SECRET);
+    const id = decoded.id;
 
-    if (doc.exists) {
-      const user = doc.data();
-      user.id = doc.id;
-      res.status(200).json(user);
-    } else {
-      res.status(404).send('User not found');
-    }
+    //const userId = req.params.id;
+    const doc = await db.collection('users').where('id', '==', id).limit(1).get();
+    
+    const userData = doc.docs[0].data();
+    res.send({name: userData.name, email: userData.email});
+
+   
   } catch (error) {
     res.status(500).send('Error getting user: ' + error);
   }
@@ -102,7 +114,7 @@ app.post('/login', async (req, res) => {
 
     // Mencari pengguna berdasarkan email
     const userDoc = await db.collection('users').where('email', '==', email).limit(1).get();
-    
+
     // Jika pengguna tidak ditemukan
     if (userDoc.empty) {
       return res.status(401).json({ error: 'User Not Founds' });
@@ -110,6 +122,9 @@ app.post('/login', async (req, res) => {
 
     const user = userDoc.docs[0].data();
     const userId = user.id;
+    
+    // Buat Token
+    const token = generateToken(userId);
 
     // Membandingkan password yang diberikan dengan password terenkripsi
     const isPasswordMatched = await bcrypt.compare(password, user.password);
@@ -124,7 +139,9 @@ app.post('/login', async (req, res) => {
         message : "Login Successful",
         LoginResult: {
           id : userId,
-          ...user
+          name : user.name,
+          email : user.email,
+          token : token
         }
       }
 

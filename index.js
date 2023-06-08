@@ -172,25 +172,27 @@ app.post('/login', async (req, res) => {
 
 // Endpoint untuk menambahkan preferensi
 app.post('/preferensi', async (req, res) => {
+  const token = req.headers.authorization;
   try {
     // Mendapatkan ID pengguna dari objek permintaan
-    const userId = req.body.userId;
+    const decoded = await verify(token.split(" ")[1], JWT_SECRET);
+    const id = decoded.id;
 
     // Mendapatkan data preferensi dari objek permintaan
-    const { harga, vibe, rating, lokasi, jenis } = req.body;
+    const { ambience, name, utils, view } = req.body;
 
     // Membuat objek preferensi baru
     const preferensiData = {
-      harga,
-      vibe,
-      rating,
-      lokasi,
-      jenis,
-      userId
+      ambience: ambience,
+      name: name,
+      utils: utils,
+      view: view,
+      userId : id
     };
+    console.log(preferensiData);
 
     // Menyimpan preferensi ke koleksi "preferensi" di Firestore
-    const preferensiRef = await admin.firestore().collection('preferensi').add(preferensiData);
+    const preferensiRef = await usersCollection.doc(id).collection("preferensi").doc().set(preferensiData)
 
     // Respon ke pengguna dengan ID preferensi yang baru ditambahkan
 
@@ -207,6 +209,28 @@ app.post('/preferensi', async (req, res) => {
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json({ error: 'Gagal menambahkan preferensi' });
+  }
+});
+
+//Get Preferensi by document ID from Firestore
+app.get('/preferensi', async (req, res) => {
+  const token = req.headers.authorization;
+  try {
+    // Decode token id dari payload
+    const decoded = await verify(token.split(" ")[1], JWT_SECRET);
+    const id = decoded.id;
+
+    const snapshotPreferensi = await usersCollection.doc(id).collection('preferensi').get();
+    const preferensiData = [];
+
+    snapshotPreferensi.forEach(doc => {
+      const preferensi = doc.data();
+      preferensi.id = doc.id;
+      preferensiData.push(preferensi);
+    });
+    res.status(200).json(preferensiData);
+  } catch (error) {
+    res.status(500).send('Error getting user: ' + error);
   }
 });
 

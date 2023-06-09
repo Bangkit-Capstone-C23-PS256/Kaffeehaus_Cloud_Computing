@@ -2,15 +2,13 @@ const express = require('express');
 const admin = require('firebase-admin');
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');
-require('dotenv').config({ path: '.env'});
-const {promisify} = require('util');
-const jwt = require('jsonwebtoken');
-const verify = promisify(jwt.verify);
-const JWT_SECRET = process.env.ACCESS_TOKEN_SECRET;
-
+const jwt = require("jsonwebtoken");
 const multer = require('multer');
+require("dotenv").config();
+const auth = require("./auth");
+const idForUser = uuidv4()
 
-
+const PORT = process.env.PORT || 3000;
 const app = express();
 const upload = multer();
 app.use(express.json());
@@ -19,10 +17,6 @@ app.use(express.json());
 // Enable CORS
 app.use(upload.none());
 
-const generateToken = (id) => {
-  return jwt.sign({id: id}, JWT_SECRET);
-};
-
 // Initialize Firebase admin app
 const serviceAccount = require('./serviceAccountKey.json');
 admin.initializeApp({
@@ -30,16 +24,16 @@ admin.initializeApp({
 });
 
 // Initialize Firestore instance
-const db = admin.firestore(); 
+const db = admin.firestore();
+db.settings({ ignoreUndefinedProperties: true })
 const usersCollection = db.collection('users');
 const preferensiCollection = db.collection('preferensi');
 
 // Add a new user to Firestore
-app.post('/users/register', async (req, res) => {
+app.post('/register', async (req, res) => {
   try {
     const { email, name, password } = req.body;
     const saltRounds = 10;
-    const idForUser = uuidv4()
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     // Create a new document with auto-generated ID and email attribute
@@ -49,6 +43,16 @@ app.post('/users/register', async (req, res) => {
       name: name,
       password: hashedPassword
     };
+
+    const token = jwt.sign(
+      { user_id: newUser.id, email },
+      process.env.TOKEN_KEY,
+      {
+        expiresIn: "30d",
+      }
+    );
+
+    newUser.token = token
 
     const docRef = await usersCollection.doc(idForUser).set(newUser);
     const newUserId = docRef.id;
@@ -65,38 +69,30 @@ app.post('/users/register', async (req, res) => {
 });
 
 // Get a user by document ID from Firestore
-app.get('/users', async (req, res) => {
-  const token = req.headers.authorization;
+app.get('/users/:id', async (req, res) => {
   try {
-    // Decode token id dari payload
-    const decoded = await verify(token.split(" ")[1], JWT_SECRET);
-    const id = decoded.id;
-    console.log(id);
+    const userId = req.params.id;
+    const doc = await usersCollection.doc(userId).get();
 
-    //const userId = req.params.id;
-    //const doc = await db.collection('users').where('id', '==', id).limit(1).get();
-    const doc = await usersCollection.doc(id).get();
-    const userData = doc.data();
-    res.send({name: userData.name, email: userData.email});
-
-   
+    if (doc.exists) {
+      const user = doc.data();
+      user.id = doc.id;
+      res.status(200).json(user);
+    } else {
+      res.status(404).send('User not found');
+    }
   } catch (error) {
     res.status(500).send('Error getting user: ' + error);
   }
 });
 
 // Update a user by document ID in Firestore
-app.put('/users', async (req, res) => {
-  const token = req.headers.authorization;
+app.put('/users/:id', async (req, res) => {
   try {
-     // Decode token id dari payload
-     const decoded = await verify(token.split(" ")[1], JWT_SECRET);
-     const id = decoded.id;
- 
-     //const userId = req.params.id;
-     const {name} = req.body; 
+    const userId = req.params.id;
+    const updatedUser = req.body;
 
-    await usersCollection.doc(id).update({name});
+    await usersCollection.doc(userId).update(updatedUser);
     res.status(200).send('User updated successfully');
   } catch (error) {
     res.status(500).send('Error updating user: ' + error);
@@ -104,12 +100,11 @@ app.put('/users', async (req, res) => {
 });
 
 // Delete a user by document ID from Firestore
-app.delete('/users', async (req, res) => {
+app.delete('/users/:id', async (req, res) => {
   try {
-    const decoded = await verify(token.split(" ")[1], JWT_SECRET);
-    const id = decoded.id;
+    const userId = req.params.id;
 
-    await usersCollection.doc(id).delete();
+    await usersCollection.doc(userId).delete();
     res.status(200).send('User deleted successfully');
   } catch (error) {
     res.status(500).send('Error deleting user: ' + error);
@@ -122,7 +117,7 @@ app.post('/login', async (req, res) => {
 
     // Mencari pengguna berdasarkan email
     const userDoc = await db.collection('users').where('email', '==', email).limit(1).get();
-
+    
     // Jika pengguna tidak ditemukan
     if (userDoc.empty) {
       return res.status(401).json({ error: 'User Not Founds' });
@@ -130,9 +125,6 @@ app.post('/login', async (req, res) => {
 
     const user = userDoc.docs[0].data();
     const userId = user.id;
-    
-    // Buat Token
-    const token = generateToken(userId);
 
     // Membandingkan password yang diberikan dengan password terenkripsi
     const isPasswordMatched = await bcrypt.compare(password, user.password);
@@ -142,14 +134,21 @@ app.post('/login', async (req, res) => {
       // Lakukan proses login
       // ...
 
+      const token = jwt.sign(
+        { user_id: userId, email},
+        process.env.TOKEN_KEY,
+        {
+          expiresIn: "30d",
+        }
+      );
+
       const response = {
         success : true,
         message : "Login Successful",
-        LoginResult: {
+        loginResult: {
           id : userId,
           name : user.name,
-          email : user.email,
-          token : token
+          token : user.token
         }
       }
 
@@ -171,37 +170,42 @@ app.post('/login', async (req, res) => {
 });
 
 // Endpoint untuk menambahkan preferensi
-app.post('/preferensi', async (req, res) => {
-  const token = req.headers.authorization;
+app.post('/preferensi', auth, async (req, res) => {
   try {
     // Mendapatkan ID pengguna dari objek permintaan
-    const decoded = await verify(token.split(" ")[1], JWT_SECRET);
-    const id = decoded.id;
+    const userId = req.body.userId;
 
     // Mendapatkan data preferensi dari objek permintaan
-    const { ambience, name, utils, view } = req.body;
+    const { name , ambience, utils, view } = req.body;
 
     // Membuat objek preferensi baru
     const preferensiData = {
-      ambience: ambience,
-      name: name,
-      utils: utils,
-      view: view,
-      userId : id
+      name,
+      ambience,
+      utils,
+      view,
+      userId
     };
-    console.log(preferensiData);
+
+ 
+
+    const parentDoc = usersCollection.doc?.(userId)
 
     // Menyimpan preferensi ke koleksi "preferensi" di Firestore
-    const preferensiRef = await usersCollection.doc(id).collection("preferensi").doc().set(preferensiData)
+    const preferensiRef = await parentDoc.collection("preferensi").doc().set(preferensiData);
 
     // Respon ke pengguna dengan ID preferensi yang baru ditambahkan
 
     const response = {
       success : true,
       message : "Berhasil menambahkan preferensi",
-      PreferensiResult : {
+      preferensiResult : {
         preferensiId : preferensiRef.id,
-        ...preferensiData
+        name : name,
+        ambience : ambience,
+        utils : utils,
+        view : view,
+        userId : userId
       }
     }
 
@@ -212,30 +216,33 @@ app.post('/preferensi', async (req, res) => {
   }
 });
 
-//Get Preferensi by document ID from Firestore
-app.get('/preferensi', async (req, res) => {
-  const token = req.headers.authorization;
-  try {
-    // Decode token id dari payload
-    const decoded = await verify(token.split(" ")[1], JWT_SECRET);
-    const id = decoded.id;
+app.get("/preferensi", auth, async (req, res) => {
+  
+  const userId = req.body.userId
 
-    const snapshotPreferensi = await usersCollection.doc(id).collection('preferensi').get();
-    const preferensiData = [];
+  const snapshotPreferensi = await usersCollection?.doc(userId).collection("preferensi").get()
+  const preferensiData = []
 
-    snapshotPreferensi.forEach(doc => {
-      const preferensi = doc.data();
-      preferensi.id = doc.id;
-      preferensiData.push(preferensi);
-    });
-    res.status(200).json(preferensiData);
-  } catch (error) {
-    res.status(500).send('Error getting user: ' + error);
-  }
+  snapshotPreferensi.forEach(doc => {
+    const preferensi = doc.data()
+    preferensi.id = doc.id
+    preferensiData.push(preferensi)
+  })
+
+  res.status(200).json(preferensiData)
+
+})
+
+app.get("/welcome", auth, (req, res) => {
+  res.status(200).send("Welcome 🙌 ");
+});
+
+app.get("/", (req, res) => {
+  res.status(200).send("Welcome 🙌 ");
 });
 
 
 // Start the server on port 3000
-app.listen(3000, () => {
-  console.log('Server is running on port 3000');
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });

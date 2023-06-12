@@ -216,9 +216,9 @@ app.post('/preferensi', auth, async (req, res) => {
   }
 });
 
-app.get("/preferensi", auth, async (req, res) => {
+app.post("/preferensiall", auth, async (req, res) => {
   
-  const userId = req.body.userId
+  const userId = req.body.userId;
 
   const snapshotPreferensi = await usersCollection?.doc(userId).collection("preferensi").get()
   const preferensiData = []

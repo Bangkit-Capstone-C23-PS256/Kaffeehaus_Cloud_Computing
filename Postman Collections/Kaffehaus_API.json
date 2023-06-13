@@ -285,7 +285,8 @@
 								}
 							]
 						},
-						"url": "https://auth-n4nelthbhq-et.a.run.app/preferensiall"
+						"url": "https://auth-n4nelthbhq-et.a.run.app/preferensiall",
+						"description": "StartFragment\n\nRetrieves all preferences associated with a user."
 					},
 					"response": []
 				}
@@ -301,7 +302,7 @@
 	],
 	"variable": [
 		{
-			"id": "8613fc29-100a-415e-954c-909027d6ef29",
+			"id": "d7ef01cc-f7ed-445b-a671-8a272b661f2a",
 			"key": "userId",
 			"value": "de9cfa20-899c-4fb3-bc67-2553ee86ef39"
 		}

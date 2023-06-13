@@ -166,7 +166,7 @@
 								}
 							]
 						},
-						"description": "StartFragment\n\nThis endpoint retrieves user data based on the provided user ID."
+						"description": "This endpoint retrieves user data based on the provided user ID."
 					},
 					"response": []
 				},
@@ -300,7 +300,7 @@
 	],
 	"variable": [
 		{
-			"id": "07d4dc40-70a1-44c0-9322-184d2a1ed85e",
+			"id": "1556a7f2-b725-4761-a26e-fdbc56d7198f",
 			"key": "userId",
 			"value": "de9cfa20-899c-4fb3-bc67-2553ee86ef39"
 		}

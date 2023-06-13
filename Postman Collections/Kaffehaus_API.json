@@ -204,7 +204,8 @@
 					"response": []
 				}
 			],
-			"id": "6234eba2-b31d-4cbe-9574-93ca2d2ad2ad"
+			"id": "6234eba2-b31d-4cbe-9574-93ca2d2ad2ad",
+			"description": "StartFragment\n\nThis folder contains endpoints related to user authentication and login."
 		},
 		{
 			"name": "Preferensi",
@@ -299,7 +300,7 @@
 	],
 	"variable": [
 		{
-			"id": "4739a1d6-1090-4394-8e6d-1edb9b2bed34",
+			"id": "f8b8a937-027a-41a0-b747-583ce9389631",
 			"key": "userId",
 			"value": "de9cfa20-899c-4fb3-bc67-2553ee86ef39"
 		}

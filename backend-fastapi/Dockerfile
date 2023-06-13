@@ -10,7 +10,7 @@ RUN pip install --upgrade pip
 COPY requirements.txt requirements.txt
 
 # Install the Python dependencies
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the remaining code to the working directory
 COPY . .
@@ -18,5 +18,7 @@ COPY . .
 # Expose the port on which the FastAPI application will run
 EXPOSE 8000
 
+ENV PYTHONUNBUFFERED=1
+
 # Run the FastAPI application using Uvicorn server
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "--host", "0.0.0.0", "--port", "8000", "app:app"]

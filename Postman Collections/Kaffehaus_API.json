@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "6fb86016-2d1a-467f-a9f5-a2d35a75c3bc",
 		"name": "API Kaffehaus",
-		"description": "Kaffehaus API\n\nDokumentasi ini mencakup fungsi-fungsi untuk manajemen pengguna dan preferensi dalam sebuah aplikasi. Melalui API ini, Anda dapat mendaftarkan pengguna baru, mengakses, memperbarui, dan menghapus data pengguna. Terdapat juga fitur login yang mendukung otentikasi pengguna. Selain itu, API ini memungkinkan pengguna untuk menambahkan dan mengambil preferensi mereka. Dokumentasi ini memberikan panduan langkah demi langkah untuk memanfaatkan API ini, termasuk format permintaan yang harus dikirimkan dan respons yang diharapkan dari setiap endpoint.",
+		"description": "StartFragment\n\nThis documentation covers functions for user and preference management in an application. Through this API, you can register new users, access, update, and delete user data. There is also a login feature that supports user authentication. Additionally, the API allows users to add and retrieve their preferences. This documentation provides a step-by-step guide to utilizing the API, including the required request format and the expected response from each endpoint.\n\nEndFragment",
 		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
 	},
 	"item": [
@@ -302,7 +302,7 @@
 	],
 	"variable": [
 		{
-			"id": "7ef10831-0628-49c1-926f-e645e4e75bad",
+			"id": "980b78a1-c0fd-4fc4-b8eb-4ca97782d394",
 			"key": "userId",
 			"value": "de9cfa20-899c-4fb3-bc67-2553ee86ef39"
 		}

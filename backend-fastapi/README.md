@@ -6,3 +6,4 @@
 
 - [Vactorizer.pkl](https://drive.google.com/file/d/1-7lJI28p3aiIeujbQi5isgX_WysDUwXa/view?usp=drive_link)
 
+API Documentation FastAPI https://backend-prod-n4nelthbhq-et.a.run.app/docs#/

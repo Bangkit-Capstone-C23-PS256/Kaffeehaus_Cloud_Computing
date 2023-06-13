@@ -39,7 +39,7 @@
 							]
 						},
 						"url": "https://auth-n4nelthbhq-et.a.run.app/register",
-						"description": "StartFragmentStartFragment\n\nThis endpoint allows you to register a new user in the system."
+						"description": "This endpoint allows you to register a new user in the system."
 					},
 					"response": []
 				},
@@ -299,7 +299,7 @@
 	],
 	"variable": [
 		{
-			"id": "3371339f-3a7f-416e-8b6f-940cb4bc5cb3",
+			"id": "4739a1d6-1090-4394-8e6d-1edb9b2bed34",
 			"key": "userId",
 			"value": "de9cfa20-899c-4fb3-bc67-2553ee86ef39"
 		}

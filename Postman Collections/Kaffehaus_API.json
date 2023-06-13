@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "6fb86016-2d1a-467f-a9f5-a2d35a75c3bc",
 		"name": "API Kaffehaus",
-		"description": "StartFragment\n\nDokumentasi ini mencakup fungsi-fungsi untuk manajemen pengguna dan preferensi dalam sebuah aplikasi. Melalui API ini, Anda dapat mendaftarkan pengguna baru, mengakses, memperbarui, dan menghapus data pengguna. Terdapat juga fitur login yang mendukung otentikasi pengguna. Selain itu, API ini memungkinkan pengguna untuk menambahkan dan mengambil preferensi mereka. Dokumentasi ini memberikan panduan langkah demi langkah untuk memanfaatkan API ini, termasuk format permintaan yang harus dikirimkan dan respons yang diharapkan dari setiap endpoint.",
+		"description": "Kaffehaus API\n\nDokumentasi ini mencakup fungsi-fungsi untuk manajemen pengguna dan preferensi dalam sebuah aplikasi. Melalui API ini, Anda dapat mendaftarkan pengguna baru, mengakses, memperbarui, dan menghapus data pengguna. Terdapat juga fitur login yang mendukung otentikasi pengguna. Selain itu, API ini memungkinkan pengguna untuk menambahkan dan mengambil preferensi mereka. Dokumentasi ini memberikan panduan langkah demi langkah untuk memanfaatkan API ini, termasuk format permintaan yang harus dikirimkan dan respons yang diharapkan dari setiap endpoint.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
 	},
 	"item": [
@@ -11,7 +11,7 @@
 			"item": [
 				{
 					"name": "Register User",
-					"_postman_id": "3446475a-e3b9-4fb3-8d13-1e95f7f42f9f",
+					"id": "3446475a-e3b9-4fb3-8d13-1e95f7f42f9f",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -36,10 +36,7 @@
 									"value": "password12345",
 									"type": "text"
 								}
-							],
-							"options": {
-								"formdata": {}
-							}
+							]
 						},
 						"url": "https://auth-n4nelthbhq-et.a.run.app/register",
 						"description": "StartFragmentStartFragment\n\nThis endpoint allows you to register a new user in the system."
@@ -48,7 +45,7 @@
 				},
 				{
 					"name": "User Login",
-					"_postman_id": "411d2107-6a58-4eee-bb8c-c5ddcb5a68c0",
+					"id": "411d2107-6a58-4eee-bb8c-c5ddcb5a68c0",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -68,10 +65,7 @@
 									"value": "password12345",
 									"type": "text"
 								}
-							],
-							"options": {
-								"formdata": {}
-							}
+							]
 						},
 						"url": "https://auth-n4nelthbhq-et.a.run.app/login",
 						"description": "StartFragment\n\nThis endpoint handles user authentication by verifying the provided email and password."
@@ -80,7 +74,7 @@
 				},
 				{
 					"name": "Get User by Id",
-					"_postman_id": "a79b0a2c-70f6-4485-bdbb-6f4bfe39726a",
+					"id": "a79b0a2c-70f6-4485-bdbb-6f4bfe39726a",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -98,10 +92,7 @@
 						],
 						"body": {
 							"mode": "formdata",
-							"formdata": [],
-							"options": {
-								"formdata": {}
-							}
+							"formdata": []
 						},
 						"url": {
 							"raw": "https://auth-n4nelthbhq-et.a.run.app/users/:id",
@@ -119,8 +110,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "{{userId}}",
-									"type": "string"
+									"value": "{{userId}}"
 								}
 							]
 						}
@@ -129,7 +119,7 @@
 				},
 				{
 					"name": "Edit User",
-					"_postman_id": "edb5b15c-8d00-41e8-a4bf-3445d9e57411",
+					"id": "edb5b15c-8d00-41e8-a4bf-3445d9e57411",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -154,10 +144,7 @@
 									"value": "password12345",
 									"type": "text"
 								}
-							],
-							"options": {
-								"formdata": {}
-							}
+							]
 						},
 						"url": {
 							"raw": "https://auth-n4nelthbhq-et.a.run.app/users/:id",
@@ -175,8 +162,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "{{userId}}",
-									"type": "string"
+									"value": "{{userId}}"
 								}
 							]
 						},
@@ -186,7 +172,7 @@
 				},
 				{
 					"name": "Delete User",
-					"_postman_id": "d7e573c2-f02b-473e-a141-4b67877fb5d8",
+					"id": "d7e573c2-f02b-473e-a141-4b67877fb5d8",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -209,8 +195,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "{{userId}}",
-									"type": "string"
+									"value": "{{userId}}"
 								}
 							]
 						},
@@ -219,14 +204,14 @@
 					"response": []
 				}
 			],
-			"_postman_id": "6234eba2-b31d-4cbe-9574-93ca2d2ad2ad"
+			"id": "6234eba2-b31d-4cbe-9574-93ca2d2ad2ad"
 		},
 		{
 			"name": "Preferensi",
 			"item": [
 				{
 					"name": "Add Preference",
-					"_postman_id": "9cf10ba8-0c38-4353-b036-678b194e985a",
+					"id": "9cf10ba8-0c38-4353-b036-678b194e985a",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -267,10 +252,7 @@
 									"value": "cb0968f4-56eb-4838-9241-ad50b875132b",
 									"type": "text"
 								}
-							],
-							"options": {
-								"formdata": {}
-							}
+							]
 						},
 						"url": "https://auth-n4nelthbhq-et.a.run.app/preferensi",
 						"description": "StartFragment\n\nThis endpoint allows you to add a new preference for a user."
@@ -279,7 +261,7 @@
 				},
 				{
 					"name": "Get Preference Data",
-					"_postman_id": "3f33cd40-b40a-4afc-9f33-fbc91cb669f6",
+					"id": "3f33cd40-b40a-4afc-9f33-fbc91cb669f6",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -300,30 +282,26 @@
 									"value": "cb0968f4-56eb-4838-9241-ad50b875132b",
 									"type": "text"
 								}
-							],
-							"options": {
-								"formdata": {}
-							}
+							]
 						},
 						"url": "https://auth-n4nelthbhq-et.a.run.app/preferensiall"
 					},
 					"response": []
 				}
 			],
-			"_postman_id": "7f56f332-559c-45b6-ab03-07b3ea91d326"
+			"id": "7f56f332-559c-45b6-ab03-07b3ea91d326"
 		},
 		{
 			"name": "New Folder",
 			"item": [],
-			"_postman_id": "243087d6-b49b-4419-b9fe-fc8b5a9c8b82"
+			"id": "243087d6-b49b-4419-b9fe-fc8b5a9c8b82"
 		}
 	],
 	"variable": [
 		{
-			"id": "ab4a2ac0-76e3-4f70-a65d-b21be35dc805",
+			"id": "3371339f-3a7f-416e-8b6f-940cb4bc5cb3",
 			"key": "userId",
-			"value": "de9cfa20-899c-4fb3-bc67-2553ee86ef39",
-			"type": "string"
+			"value": "de9cfa20-899c-4fb3-bc67-2553ee86ef39"
 		}
 	]
 }

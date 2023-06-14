@@ -298,7 +298,7 @@
 			"name": "Prediction",
 			"item": [
 				{
-					"name": "New Request",
+					"name": "Get Caffe All",
 					"id": "f4cf8412-00c5-4415-9e1e-14c05da1cc3f",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
@@ -316,7 +316,7 @@
 	],
 	"variable": [
 		{
-			"id": "30b72d39-39fc-4948-a6a2-165e6300e714",
+			"id": "871fb423-83f4-4190-8599-81547cb52d63",
 			"key": "userId",
 			"value": "de9cfa20-899c-4fb3-bc67-2553ee86ef39"
 		}

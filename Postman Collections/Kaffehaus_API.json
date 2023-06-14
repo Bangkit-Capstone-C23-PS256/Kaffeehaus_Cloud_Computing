@@ -208,7 +208,7 @@
 			"description": "This folder contains endpoints related to user authentication and login."
 		},
 		{
-			"name": "Preferensi",
+			"name": "Preference",
 			"item": [
 				{
 					"name": "Add Preference",
@@ -302,7 +302,7 @@
 	],
 	"variable": [
 		{
-			"id": "2d635e2b-c966-4712-949b-5d99003ed324",
+			"id": "148e8ad1-1866-4459-a7f8-f48de3f64114",
 			"key": "userId",
 			"value": "de9cfa20-899c-4fb3-bc67-2553ee86ef39"
 		}

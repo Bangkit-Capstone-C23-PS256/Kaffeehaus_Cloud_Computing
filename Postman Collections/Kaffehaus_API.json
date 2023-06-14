@@ -305,7 +305,8 @@
 					},
 					"request": {
 						"method": "GET",
-						"header": []
+						"header": [],
+						"url": "https://backend-prod-n4nelthbhq-et.a.run.app/caffe"
 					},
 					"response": []
 				}
@@ -315,7 +316,7 @@
 	],
 	"variable": [
 		{
-			"id": "0e9aea1c-2101-40c2-988b-53f4ce8a51bc",
+			"id": "30b72d39-39fc-4948-a6a2-165e6300e714",
 			"key": "userId",
 			"value": "de9cfa20-899c-4fb3-bc67-2553ee86ef39"
 		}

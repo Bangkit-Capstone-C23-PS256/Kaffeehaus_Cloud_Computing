@@ -295,14 +295,14 @@
 			"description": "StartFragment\n\nThis folder contains endpoints related to user preferences."
 		},
 		{
-			"name": "New Folder",
+			"name": "Prediksi",
 			"item": [],
 			"id": "243087d6-b49b-4419-b9fe-fc8b5a9c8b82"
 		}
 	],
 	"variable": [
 		{
-			"id": "9ba4be94-536e-48eb-86ff-74308dcc7f9b",
+			"id": "2d635e2b-c966-4712-949b-5d99003ed324",
 			"key": "userId",
 			"value": "de9cfa20-899c-4fb3-bc67-2553ee86ef39"
 		}

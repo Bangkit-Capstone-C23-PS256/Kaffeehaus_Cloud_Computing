@@ -311,7 +311,7 @@
 					"response": []
 				},
 				{
-					"name": "New Request",
+					"name": "Search Caffe",
 					"id": "8fc460bb-a5db-4a76-a81b-1c579998e792",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true,
@@ -347,7 +347,7 @@
 	],
 	"variable": [
 		{
-			"id": "cae0f3ed-2107-4f51-aeee-286ce4e4d015",
+			"id": "6cb57e73-7583-4b35-a377-104541dddf19",
 			"key": "userId",
 			"value": "de9cfa20-899c-4fb3-bc67-2553ee86ef39"
 		}

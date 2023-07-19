@@ -172,7 +172,7 @@ def perform_search(user_input):
     Place_list = sorted_list[:20]
 
     def caffe_result(Place_list):
-        columns_to_extract = [0, 2, 4, 5, 14]
+        columns_to_extract = [1, 0, 2, 4, 5, 14, 15, 16]
         output = []
 
         with open(csv_file, 'r', encoding='utf-8') as file:
@@ -190,11 +190,14 @@ def perform_search(user_input):
             data = get_data(Place_list, columns_to_extract)
             for row in data:
                 output.append({
-                    "name": row[0],
-                    "address": row[1],
-                    "rating": float(row[2]),
-                    "total_review": int(row[3]),
-                    "url_photo": row[4]
+                    "place_id": row[0],
+                    "name": row[1],
+                    "address": row[2],
+                    "rating": float(row[3]),
+                    "total_review": int(row[4]),
+                    "url_photo": row[5],
+                    "longitude": row[6],
+                    "latitude": row[7]
                 })
 
         return output
